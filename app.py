@@ -6,10 +6,9 @@ import os
 # Page configurations
 st.set_page_config(page_title="JARVIS Assistant", page_icon="🤖", layout="centered")
 
-# Safe and working configuration syntax
+# Retrieve the hidden API key safely from Streamlit Settings
 api_key_from_secrets = st.secrets.get("GROQ_API_KEY")
 client = Groq(api_key=api_key_from_secrets)
-
 
 st.title("🤖 Project J.A.R.V.I.S.")
 st.write("---")
@@ -25,7 +24,6 @@ audio_bytes = audio_recorder(
 )
 
 if audio_bytes:
-    # Temporarily save audio file on the hosting platform
     audio_filename = "user_input.wav"
     with open(audio_filename, "wb") as f:
         f.write(audio_bytes)
@@ -71,4 +69,4 @@ if audio_bytes:
             
         except Exception as e:
             st.error(f"System error encountered: {e}")
-          
+            
