@@ -6,12 +6,10 @@ import os
 # Page configurations
 st.set_page_config(page_title="JARVIS Assistant", page_icon="🤖", layout="centered")
 
-# Retrieve the hidden API key safely from Streamlit Settings
-if "GROQ_API_KEY" in st.secrets:
-    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-else:
-    st.error("Please add your GROQ_API_KEY in the Streamlit App Secret settings.")
-    st.stop()
+# Safe and working configuration syntax
+api_key_from_secrets = st.secrets.get("GROQ_API_KEY")
+client = Groq(api_key=api_key_from_secrets)
+
 
 st.title("🤖 Project J.A.R.V.I.S.")
 st.write("---")
