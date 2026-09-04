@@ -44,7 +44,7 @@ if audio_value:
 
             st.markdown(f'**Question:** {transcription}')
 
-            # 2. Fact-Only AI Response (No conversational talk or thinking blocks)
+            # 2. Fact-Only AI Response
             chat_completion = client.chat.completions.create(
                 messages=[
                     {
@@ -65,13 +65,17 @@ if audio_value:
                 max_tokens=100
             )
 
-            answer = chat_completion.choices[0].message.content
+            answer = chat_completion.choices.message.content
 
-            # Clean and filter out any hidden thinking tags instantly
+            # Clean and filter out reasoning tags safely
             if "</think>" in answer:
                 answer = answer.split("</think>")[-1].strip()
             elif "<think>" in answer:
-                answer = answer.split("<think>")[0].strip()
+                answer = answer.split("<think>")[-1].strip()
+
+            # STABILITY FALLBACK: Ensures there is always valid text string data for the voice reader
+            if not answer or answer == "":
+                answer = "I do not have enough information to form a direct answer for this specific question."
 
             st.success(f"**Answer:** {answer}")
 
