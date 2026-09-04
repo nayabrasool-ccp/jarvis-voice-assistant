@@ -28,20 +28,17 @@ st.subheader("Welcome, Boss. Record your voice command below.")
 audio_value = st.audio_input("Record a voice message")
 
 if audio_value:
-
     audio_filename = "user_input.wav"
 
     with open(audio_filename, "wb") as f:
         f.write(audio_value.read())
 
     with st.spinner("Processing your audio, boss..."):
-
         try:
             # -------------------------------
-            # 1. Speech → Text
+            # 1. Speech → Text (Whisper)
             # -------------------------------
             with open(audio_filename, "rb") as audio_file:
-
                 transcription = client.audio.transcriptions.create(
                     file=audio_file,
                     model="whisper-large-v3",
@@ -56,7 +53,6 @@ if audio_value:
             # 2. JARVIS AI Response
             # -------------------------------
             chat_completion = client.chat.completions.create(
-
                 messages=[
                     {
                         "role": "system",
@@ -73,11 +69,11 @@ if audio_value:
                         "content": transcription
                     }
                 ],
-
-                model="llama-3.3-70b-versatile"
+                # Swapped to Groq's active high-speed alternative model
+                model="llama-3.3-70b-specdec"
             )
 
-            # IMPORTANT: [0]
+            # Using clean modern syntax to fetch the text reply safely
             jarvis_reply = chat_completion.choices[0].message.content
 
             st.markdown(
@@ -94,24 +90,20 @@ if audio_value:
             )
 
             speech_filename = "jarvis_response.mp3"
-
             tts.save(speech_filename)
 
-            # Play response
+            # Play response back automatically
             st.audio(
                 speech_filename,
-                format="audio/mp3"
+                format="audio/mp3",
+                autoplay=True
             )
 
-            # Cleanup
+            # Cleanup temporary local recorder files
             if os.path.exists(audio_filename):
                 os.remove(audio_filename)
 
-            # Don't immediately delete the MP3 before
-            # Streamlit has a chance to serve it.
-
         except Exception as e:
-
             st.error(
                 f"System error encountered: {e}"
             )
