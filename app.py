@@ -69,12 +69,11 @@ if audio_value:
                         "content": transcription
                     }
                 ],
-                # Swapped to Groq's active high-speed alternative model ID
                 model="qwen/qwen3.6-27b"
             )
 
-            # Modern dynamic syntax to fetch response text safely
-            jarvis_reply = chat_completion.choices.message.content
+            # FIX: Cleanly retrieves the text content from the choices list indexing layout
+            jarvis_reply = chat_completion.choices[0].message.content
 
             st.markdown(
                 f"**JARVIS:** {jarvis_reply}"
@@ -99,7 +98,7 @@ if audio_value:
                 autoplay=True
             )
 
-            # Cleanup temporary voice file layout
+            # Cleanup temporary data layout
             if os.path.exists(audio_filename):
                 os.remove(audio_filename)
 
