@@ -2,6 +2,7 @@ import streamlit as st
 from groq import Groq
 from gtts import gTTS
 import os
+import time
 
 # Page configuration
 st.set_page_config(
@@ -72,8 +73,11 @@ if audio_value:
                 model="qwen/qwen3.6-27b"
             )
 
-            # FIX: Cleanly retrieves the text content from the choices list indexing layout
-            jarvis_reply = chat_completion.choices[0].message.content
+            jarvis_reply = chat_completion.choices.message.content
+
+            # CLEANUP RULE: Strips out the reasoning tag so it won't break the speech audio
+            if "</think>" in jarvis_reply:
+                jarvis_reply = jarvis_reply.split("</think>")[-1].strip()
 
             st.markdown(
                 f"**JARVIS:** {jarvis_reply}"
@@ -88,17 +92,19 @@ if audio_value:
                 tld="co.uk"
             )
 
-            speech_filename = "jarvis_response.mp3"
+            # Creating a uniquely named file using a timestamp forces the audio to update cleanly
+            unique_time = int(time.time())
+            speech_filename = f"jarvis_{unique_time}.mp3"
             tts.save(speech_filename)
 
-            # Play response back automatically
+            # Play fresh response back automatically without using cached memory logs
             st.audio(
                 speech_filename,
                 format="audio/mp3",
                 autoplay=True
             )
 
-            # Cleanup temporary data layout
+            # Cleanup local files
             if os.path.exists(audio_filename):
                 os.remove(audio_filename)
 
