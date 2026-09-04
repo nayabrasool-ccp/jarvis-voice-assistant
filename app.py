@@ -6,7 +6,7 @@ import time
 
 # Page configuration
 st.set_page_config(
-    page_title="JARVIS Assistant",
+    page_title="Fact Engine",
     page_icon="🤖",
     layout="centered"
 )
@@ -20,12 +20,11 @@ if not api_key:
 
 client = Groq(api_key=api_key)
 
-st.title("🤖 Project J.A.R.V.I.S.")
+st.title("🌐 Direct Answer Engine")
 st.write("---")
-st.subheader("Welcome, Boss. Tap the mic below manually to speak.")
 
-# EASY MANUAL MIC: Tap to turn on, tap again to turn off
-audio_value = st.audio_input("Record your command")
+# Simple, manual click-to-talk widget
+audio_value = st.audio_input("Tap microphone to ask your question")
 
 if audio_value:
     audio_filename = "user_input.wav"
@@ -33,7 +32,7 @@ if audio_value:
     with open(audio_filename, "wb") as f:
         f.write(audio_value.read())
 
-    with st.spinner("Processing audio, boss..."):
+    with st.spinner("Searching..."):
         try:
             # 1. Speech → Text
             with open(audio_filename, "rb") as audio_file:
@@ -43,18 +42,18 @@ if audio_value:
                     response_format="text"
                 )
 
-            st.markdown(f'**You said:** "{transcription}"')
+            st.markdown(f'**Question:** {transcription}')
 
-            # 2. Accurate JARVIS AI Response (Fixed limits to stop crashes)
+            # 2. Fact-Only AI Response (No conversational talk or thinking blocks)
             chat_completion = client.chat.completions.create(
                 messages=[
                     {
                         "role": "system",
                         "content": (
-                            "You are JARVIS, an advanced artificial intelligence system. "
-                            "Speak with a highly sophisticated, British, polite demeanor. "
-                            "Provide highly accurate factual answers, but keep your responses "
-                            "under 3 sentences max to maintain optimal performance."
+                            "You are a precise, direct data engine. "
+                            "Provide ONLY the direct factual answer to the question asked. "
+                            "Do not include conversational greetings, introductions, thoughts, "
+                            "or extra fluff. Keep your output under 2 sentences max."
                         )
                     },
                     {
@@ -63,30 +62,31 @@ if audio_value:
                     }
                 ],
                 model="qwen/qwen3.6-27b",
-                max_tokens=150  # Fixed limit ensures it never hits a 429 crash again
+                max_tokens=100
             )
 
-            jarvis_reply = chat_completion.choices[0].message.content
+            answer = chat_completion.choices[0].message.content
 
-            # Clean up the output if reasoning markers show up
-            if "</think>" in jarvis_reply:
-                jarvis_reply = jarvis_reply.split("</think>")[-1].strip()
+            # Clean and filter out any hidden thinking tags instantly
+            if "</think>" in answer:
+                answer = answer.split("</think>")[-1].strip()
+            elif "<think>" in answer:
+                answer = answer.split("<think>")[0].strip()
 
-            st.markdown(f"**JARVIS:** {jarvis_reply}")
+            st.success(f"**Answer:** {answer}")
 
             # 3. Text → Speech
             tts = gTTS(
-                text=jarvis_reply,
-                lang="en",
-                tld="co.uk"
+                text=answer,
+                lang="en"
             )
 
-            # Generates a fresh audio path every loop to prevent browser sound bugs
+            # Generates a clear fresh audio file per request
             unique_time = int(time.time())
-            speech_filename = f"jarvis_{unique_time}.mp3"
+            speech_filename = f"reply_{unique_time}.mp3"
             tts.save(speech_filename)
 
-            # Play fresh response back automatically out loud
+            # Play fresh voice reply out loud automatically
             st.audio(
                 speech_filename,
                 format="audio/mp3",
@@ -98,5 +98,5 @@ if audio_value:
                 os.remove(audio_filename)
 
         except Exception as e:
-            st.error(f"System error encountered: {e}")
+            st.error(f"Error processing question: {e}")
             
