@@ -6,8 +6,9 @@ import os
 # Page configurations
 st.set_page_config(page_title="JARVIS Assistant", page_icon="🤖", layout="centered")
 
-# This is a solid, un-split string that bypasses the variable addition math error completely
-client = Groq(api_key="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")
+# Safe configuration layout: Reads securely from Streamlit Settings vault
+api_key_from_secrets = st.secrets.get("GROQ_API_KEY")
+client = Groq(api_key=api_key_from_secrets)
 
 st.title("🤖 Project J.A.R.V.I.S.")
 st.write("---")
