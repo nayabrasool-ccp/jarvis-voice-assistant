@@ -69,12 +69,12 @@ if audio_value:
                         "content": transcription
                     }
                 ],
-                # Swapped to Groq's active high-speed alternative model
-                model="llama-3.3-70b-specdec"
+                # Swapped to Groq's active high-speed alternative model ID
+                model="qwen/qwen3.6-27b"
             )
 
-            # Using clean modern syntax to fetch the text reply safely
-            jarvis_reply = chat_completion.choices[0].message.content
+            # Modern dynamic syntax to fetch response text safely
+            jarvis_reply = chat_completion.choices.message.content
 
             st.markdown(
                 f"**JARVIS:** {jarvis_reply}"
@@ -99,7 +99,7 @@ if audio_value:
                 autoplay=True
             )
 
-            # Cleanup temporary local recorder files
+            # Cleanup temporary voice file layout
             if os.path.exists(audio_filename):
                 os.remove(audio_filename)
 
@@ -107,3 +107,4 @@ if audio_value:
             st.error(
                 f"System error encountered: {e}"
             )
+            
