@@ -1,1 +1,5 @@
+streamlit==1.40.0
+groq==0.9.0
+gTTS==2.5.1
+audio-recorder-streamlit==0.0.10
 
